@@ -1,34 +1,34 @@
 const ROTOR_1_ALPHABET: [char; 26] = [
-    'E', 'K', 'M', 'F', 'L', 'G', 'D', 'Q', 'V', 'Z', 'N', 'T', 'O',
-    'W', 'Y', 'H', 'X', 'U', 'S', 'P', 'A', 'I', 'B', 'R', 'C', 'J'
+    'E', 'K', 'M', 'F', 'L', 'G', 'D', 'Q', 'V', 'Z', 'N', 'T', 'O', 'W', 'Y', 'H', 'X', 'U', 'S',
+    'P', 'A', 'I', 'B', 'R', 'C', 'J',
 ];
 
 const ROTOR_2_ALPHABET: [char; 26] = [
-    'A', 'J', 'D', 'K', 'S', 'I', 'R', 'U', 'X', 'B', 'L', 'H', 'W',
-    'T', 'M', 'C', 'Q', 'G', 'Z', 'N', 'P', 'Y', 'F', 'V', 'O', 'E'
+    'A', 'J', 'D', 'K', 'S', 'I', 'R', 'U', 'X', 'B', 'L', 'H', 'W', 'T', 'M', 'C', 'Q', 'G', 'Z',
+    'N', 'P', 'Y', 'F', 'V', 'O', 'E',
 ];
 
 pub struct RotorTyre {
     notch: usize,
-    alphabet: &'static [char; 26]
+    alphabet: &'static [char; 26],
 }
 
 const ROTOR_I: RotorTyre = RotorTyre {
     // Rollover when stepping from 'Q' to 'R' (16 -> 17)
     notch: 16,
-    alphabet: &ROTOR_1_ALPHABET
+    alphabet: &ROTOR_1_ALPHABET,
 };
 
 const ROTOR_II: RotorTyre = RotorTyre {
     // Rollover when 'stepping from E' to 'F' (4 -> 5)
     notch: 4,
-    alphabet: &ROTOR_2_ALPHABET
+    alphabet: &ROTOR_2_ALPHABET,
 };
 
 pub struct Rotor {
     tyre: &'static RotorTyre,
     pos: usize,
-    ring_loc: usize
+    ring_loc: usize,
 }
 
 impl Rotor {
@@ -46,12 +46,16 @@ impl Rotor {
         Rotor {
             tyre,
             pos: (pos).rem_euclid(26),
-            ring_loc: (ring_loc).rem_euclid(26)
+            ring_loc: (ring_loc).rem_euclid(26),
         }
     }
 
     pub fn new_custom_rotor(tyre: &'static RotorTyre, pos: usize, ring_loc: usize) -> Self {
-        Rotor {tyre, pos, ring_loc}
+        Rotor {
+            tyre,
+            pos,
+            ring_loc,
+        }
     }
 
     pub fn rotate(&mut self) {
@@ -62,7 +66,6 @@ impl Rotor {
         self.pos == self.tyre.notch
     }
 }
-
 
 #[cfg(test)]
 mod tests {
