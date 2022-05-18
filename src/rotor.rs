@@ -8,7 +8,7 @@ const ROTOR_2_ALPHABET: [char; 26] = [
     'T', 'M', 'C', 'Q', 'G', 'Z', 'N', 'P', 'Y', 'F', 'V', 'O', 'E'
 ];
 
-struct RotorTyre {
+pub struct RotorTyre {
     notch: usize,
     alphabet: &'static [char; 26]
 }
@@ -50,6 +50,10 @@ impl Rotor {
             pos: (pos).rem_euclid(26),
             ring_loc: (ring_loc).rem_euclid(26)
         }
+    }
+
+    pub fn new_custom_rotor(tyre: &'static RotorTyre, pos: usize, ring_loc: usize) -> Self {
+        Rotor {tyre, pos, ring_loc}
     }
 
     pub fn rotate(&mut self) {
