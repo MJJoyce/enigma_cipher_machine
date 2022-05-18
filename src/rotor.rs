@@ -14,16 +14,14 @@ pub struct RotorTyre {
 }
 
 const ROTOR_I: RotorTyre = RotorTyre {
-    // Rollover when 'Q' is in the "window" and moves to 'R'.
-    // Notch is actually aligned with 'Y'.
-    notch: 14,
+    // Rollover when stepping from 'Q' to 'R' (16 -> 17)
+    notch: 16,
     alphabet: &ROTOR_1_ALPHABET
 };
 
 const ROTOR_II: RotorTyre = RotorTyre {
-    // Rollover when 'E' is in the "window" and moves to 'F'.
-    // Notch is actually aligned with 'M'
-    notch: 14,
+    // Rollover when 'stepping from E' to 'F' (4 -> 5)
+    notch: 4,
     alphabet: &ROTOR_2_ALPHABET
 };
 
@@ -59,6 +57,10 @@ impl Rotor {
     pub fn rotate(&mut self) {
         self.pos = (self.pos + 1).rem_euclid(26);
     }
+
+    pub fn will_step_next_rotor(self) -> bool {
+        self.pos == self.tyre.notch
+    }
 }
 
 
@@ -86,5 +88,17 @@ mod tests {
         let r = Rotor::new_with_state("I", 26, 26);
         assert_eq!(r.pos, 0);
         assert_eq!(r.ring_loc, 0);
+    }
+
+    #[test]
+    fn test_rotor_step() {
+        let r = Rotor::new_with_state("I", 17, 0);
+        assert_eq!(false, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("I", 15, 0);
+        assert_eq!(false, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("I", 16, 0);
+        assert_eq!(true, r.will_step_next_rotor());
     }
 }
