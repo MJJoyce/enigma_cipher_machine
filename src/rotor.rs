@@ -1,13 +1,41 @@
-// ['E', 'K', 'M', 'F', 'L', 'G', 'D', 'Q', 'V', 'Z', 'N', 'T', 'O',
-// 'W', 'Y', 'H', 'X', 'U', 'S', 'P', 'A', 'I', 'B', 'R', 'C', 'J']
+// [E, K, M, F, L, G, D, Q, V, Z, N, T, O, W, Y, H, X, U, S, P, A, I, B, R, C, J]
 const ROTOR_1_ALPHABET: [u8; 26] = [
     4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 23, 20, 18, 15, 0, 8, 1, 17, 2, 9,
 ];
 
-// ['A', 'J', 'D', 'K', 'S', 'I', 'R', 'U', 'X', 'B', 'L', 'H', 'W',
-// 'T', 'M', 'C', 'Q', 'G', 'Z', 'N', 'P', 'Y', 'F', 'V', 'O', 'E'];
+// [A, J, D, K, S, I, R, U, X, B, L, H, W, T, M, C, Q, G, Z, N, P, Y, F, V, O, E];
 const ROTOR_2_ALPHABET: [u8; 26] = [
     0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4,
+];
+
+// [B, D, F, H, J, L, C, P, R, T, X, V, Z, N, Y, E, I, W, G, A, K, M, U, S, Q, O]
+const ROTOR_3_ALPHABET: [u8; 26] = [
+    1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14,
+];
+
+// [E, S, O, V, P, Z, J, A, Y, Q, U, I, R, H, X, L, N, F, T, G, K, D, C, M, W, B]
+const ROTOR_4_ALPHABET: [u8; 26] = [
+    4, 18, 14, 21, 15, 25, 9, 0, 24, 16, 20, 8, 17, 7, 23, 11, 13, 5, 19, 6, 10, 3, 2, 12, 22, 1,
+];
+
+// [V, Z, B, R, G, I, T, Y, U, P, S, D, N, H, L, X, A, W, M, J, Q, O, F, E, C, K]
+const ROTOR_5_ALPHABET: [u8; 26] = [
+    21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10,
+];
+
+// [J, P, G, V, O, U, M, F, Y, Q, B, E, N, H, Z, R, D, K, A, S, X, L, I, C, T, W]
+const ROTOR_6_ALPHABET: [u8; 26] = [
+    9, 15, 6, 21, 14, 20, 12, 5, 24, 16, 1, 4, 13, 7, 25, 17, 3, 10, 0, 18, 23, 11, 8, 2, 19, 22,
+];
+
+// [N, Z, J, H, G, R, C, X, M, Y, S, W, B, O, U, F, A, I, V, L, P, E, K, Q, D, T]
+const ROTOR_7_ALPHABET: [u8; 26] = [
+    13, 25, 9, 7, 6, 17, 2, 23, 12, 24, 18, 22, 1, 14, 20, 5, 0, 8, 21, 11, 15, 4, 10, 16, 3, 19,
+];
+
+// [F, K, Q, H, T, L, X, O, C, B, J, S, P, D, Z, R, A, M, E, W, N, I, U, Y, G, V]
+const ROTOR_8_ALPHABET: [u8; 26] = [
+    5, 10, 16, 7, 19, 11, 23, 14, 2, 1, 9, 18, 15, 3, 25, 17, 0, 12, 4, 22, 13, 8, 20, 24, 6, 21,
 ];
 
 pub struct RotorTyre {
@@ -22,10 +50,47 @@ const ROTOR_I: RotorTyre = RotorTyre {
 };
 
 const ROTOR_II: RotorTyre = RotorTyre {
-    // Rollover when 'stepping from E' to 'F' (4 -> 5)
+    // Rollover when stepping from 'E' to 'F' (4 -> 5)
     notch: 4,
     alphabet: &ROTOR_2_ALPHABET,
 };
+
+const ROTOR_III: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'V' to 'W' (20 -> 21)
+    notch: 20,
+    alphabet: &ROTOR_3_ALPHABET,
+};
+
+const ROTOR_IV: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'J' to 'K' (8 -> 9)
+    notch: 8,
+    alphabet: &ROTOR_4_ALPHABET,
+};
+
+const ROTOR_V: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'Z' to 'A' (25 -> 0)
+    notch: 25,
+    alphabet: &ROTOR_5_ALPHABET,
+};
+
+// uh oh, these have two notches
+//const ROTOR_VI: RotorTyre = RotorTyre {
+//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+//notch: [25, 11],
+//alphabet: &ROTOR_6_ALPHABET,
+//};
+
+//const ROTOR_VII: RotorTyre = RotorTyre {
+//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+//notch: [25, 11],
+//alphabet: &ROTOR_7_ALPHABET,
+//};
+
+//const ROTOR_VIII: RotorTyre = RotorTyre {
+//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+//notch: [25, 11],
+//alphabet: &ROTOR_8_ALPHABET,
+//};
 
 pub struct Rotor {
     tyre: &'static RotorTyre,
@@ -42,6 +107,9 @@ impl Rotor {
         let tyre = match rotor_id {
             "I" => &ROTOR_I,
             "II" => &ROTOR_II,
+            "III" => &ROTOR_III,
+            "IV" => &ROTOR_IV,
+            "V" => &ROTOR_V,
             _ => panic!("Invalid rotor identifier {}", rotor_id),
         };
 
