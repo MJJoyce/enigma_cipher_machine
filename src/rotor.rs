@@ -38,59 +38,63 @@ const ROTOR_8_ALPHABET: [u8; 26] = [
     5, 10, 16, 7, 19, 11, 23, 14, 2, 1, 9, 18, 15, 3, 25, 17, 0, 12, 4, 22, 13, 8, 20, 24, 6, 21,
 ];
 
+enum RotorTyreNotch {
+    Single(u8),
+    Double([u8; 2]),
+}
+
 pub struct RotorTyre {
-    notch: u8,
+    notch: RotorTyreNotch,
     alphabet: &'static [u8; 26],
 }
 
 const ROTOR_I: RotorTyre = RotorTyre {
     // Rollover when stepping from 'Q' to 'R' (16 -> 17)
-    notch: 16,
+    notch: RotorTyreNotch::Single(16),
     alphabet: &ROTOR_1_ALPHABET,
 };
 
 const ROTOR_II: RotorTyre = RotorTyre {
     // Rollover when stepping from 'E' to 'F' (4 -> 5)
-    notch: 4,
+    notch: RotorTyreNotch::Single(4),
     alphabet: &ROTOR_2_ALPHABET,
 };
 
 const ROTOR_III: RotorTyre = RotorTyre {
     // Rollover when stepping from 'V' to 'W' (20 -> 21)
-    notch: 20,
+    notch: RotorTyreNotch::Single(20),
     alphabet: &ROTOR_3_ALPHABET,
 };
 
 const ROTOR_IV: RotorTyre = RotorTyre {
     // Rollover when stepping from 'J' to 'K' (8 -> 9)
-    notch: 8,
+    notch: RotorTyreNotch::Single(8),
     alphabet: &ROTOR_4_ALPHABET,
 };
 
 const ROTOR_V: RotorTyre = RotorTyre {
     // Rollover when stepping from 'Z' to 'A' (25 -> 0)
-    notch: 25,
+    notch: RotorTyreNotch::Single(25),
     alphabet: &ROTOR_5_ALPHABET,
 };
 
-// uh oh, these have two notches
-//const ROTOR_VI: RotorTyre = RotorTyre {
-//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
-//notch: [25, 11],
-//alphabet: &ROTOR_6_ALPHABET,
-//};
+const ROTOR_VI: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+    notch: RotorTyreNotch::Double([25, 11]),
+    alphabet: &ROTOR_6_ALPHABET,
+};
 
-//const ROTOR_VII: RotorTyre = RotorTyre {
-//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
-//notch: [25, 11],
-//alphabet: &ROTOR_7_ALPHABET,
-//};
+const ROTOR_VII: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+    notch: RotorTyreNotch::Double([25, 11]),
+    alphabet: &ROTOR_7_ALPHABET,
+};
 
-//const ROTOR_VIII: RotorTyre = RotorTyre {
-//// Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
-//notch: [25, 11],
-//alphabet: &ROTOR_8_ALPHABET,
-//};
+const ROTOR_VIII: RotorTyre = RotorTyre {
+    // Rollover when stepping from 'Z' to 'A' (25 -> 0) or 'M' to 'N' (11 -> 12)
+    notch: RotorTyreNotch::Double([25, 11]),
+    alphabet: &ROTOR_8_ALPHABET,
+};
 
 pub struct Rotor {
     tyre: &'static RotorTyre,
@@ -110,6 +114,9 @@ impl Rotor {
             "III" => &ROTOR_III,
             "IV" => &ROTOR_IV,
             "V" => &ROTOR_V,
+            "VI" => &ROTOR_VI,
+            "VII" => &ROTOR_VII,
+            "VIII" => &ROTOR_VIII,
             _ => panic!("Invalid rotor identifier {}", rotor_id),
         };
 
@@ -133,7 +140,10 @@ impl Rotor {
     }
 
     pub fn will_step_next_rotor(self) -> bool {
-        self.pos == self.tyre.notch
+        match self.tyre.notch {
+            RotorTyreNotch::Single(notch_index) => self.pos == notch_index,
+            RotorTyreNotch::Double([notch1, notch2]) => self.pos == notch1 || self.pos == notch2,
+        }
     }
 
     pub fn map(&self, input_val: u8) -> u8 {
@@ -177,6 +187,33 @@ mod tests {
 
         let r = Rotor::new_with_state("I", 16, 0);
         assert_eq!(true, r.will_step_next_rotor());
+    }
+
+    #[test]
+    fn test_rotor_step_multinotch() {
+        // Check the first notch values
+        let (notch1, notch2) = match ROTOR_VI.notch {
+            RotorTyreNotch::Double([notch1, notch2]) => (notch1, notch2),
+            _ => panic!("This is literally impossible"),
+        };
+
+        let r = Rotor::new_with_state("VI", (notch1 - 1).rem_euclid(26), 0);
+        assert_eq!(false, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("VI", notch1, 0);
+        assert_eq!(true, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("VI", (notch1 + 1).rem_euclid(26), 0);
+        assert_eq!(false, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("VI", (notch2 - 1).rem_euclid(26), 0);
+        assert_eq!(false, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("VI", notch2, 0);
+        assert_eq!(true, r.will_step_next_rotor());
+
+        let r = Rotor::new_with_state("VI", (notch2 + 1).rem_euclid(26), 0);
+        assert_eq!(false, r.will_step_next_rotor());
     }
 
     #[test]
