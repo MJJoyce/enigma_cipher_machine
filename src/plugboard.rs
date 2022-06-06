@@ -10,13 +10,13 @@ pub struct PlugBoard {
 impl PlugBoard {
     pub fn new() -> PlugBoard {
         PlugBoard {
-            mapping: HashMap::new()
+            mapping: HashMap::new(),
         }
     }
 
     pub fn new_with_mapping<T>(mappings: T) -> Result<PlugBoard, String>
     where
-        T: IntoIterator<Item = (char, char)>
+        T: IntoIterator<Item = (char, char)>,
     {
         let mut pb = Self::new();
 
@@ -33,7 +33,9 @@ impl PlugBoard {
         let valid_char = Regex::new("^[a-zA-Z]$").unwrap();
         let mut conv_buf = [0; 4];
 
-        if !(valid_char.is_match(in1.encode_utf8(&mut conv_buf)) && valid_char.is_match(in2.encode_utf8(&mut conv_buf))) {
+        if !(valid_char.is_match(in1.encode_utf8(&mut conv_buf))
+            && valid_char.is_match(in2.encode_utf8(&mut conv_buf)))
+        {
             let msg = format!(
                 "Error in PlugBoard configuration. Can only map alphabetic characters. Received {} {}",
                 in1, in2

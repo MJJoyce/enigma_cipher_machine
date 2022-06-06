@@ -55,13 +55,11 @@ impl EnigmaMachineBuilder {
             return None;
         }
 
-        Some(
-            EnigmaMachine {
-                reflector: self.reflector.unwrap(),
-                rotors: self.rotors.unwrap(),
-                plugboard: self.plugboard.unwrap()
-            }
-        )
+        Some(EnigmaMachine {
+            reflector: self.reflector.unwrap(),
+            rotors: self.rotors.unwrap(),
+            plugboard: self.plugboard.unwrap(),
+        })
     }
 }
 
