@@ -38,11 +38,13 @@ const ROTOR_8_ALPHABET: [u8; 26] = [
     5, 10, 16, 7, 19, 11, 23, 14, 2, 1, 9, 18, 15, 3, 25, 17, 0, 12, 4, 22, 13, 8, 20, 24, 6, 21,
 ];
 
+#[derive(Debug)]
 enum RotorTyreNotch {
     Single(u8),
     Double([u8; 2]),
 }
 
+#[derive(Debug)]
 pub struct RotorTyre {
     notch: RotorTyreNotch,
     alphabet: &'static [u8; 26],
@@ -96,6 +98,7 @@ const ROTOR_VIII: RotorTyre = RotorTyre {
     alphabet: &ROTOR_8_ALPHABET,
 };
 
+#[derive(Debug)]
 pub struct Rotor {
     tyre: &'static RotorTyre,
     pos: u8,
