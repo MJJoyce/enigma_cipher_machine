@@ -13,12 +13,13 @@ const REFLECTOR_C_ALPHABET: [u8; 26] = [
     5, 21, 15, 9, 8, 0, 14, 24, 4, 3, 17, 25, 23, 22, 6, 2, 19, 10, 20, 16, 18, 1, 13, 12, 7, 11,
 ];
 
+#[derive(Debug)]
 pub struct Reflector {
     alphabet: &'static [u8; 26],
 }
 
 impl Reflector {
-    fn new(reflector_id: &str) -> Reflector {
+    pub fn new(reflector_id: &str) -> Reflector {
         match reflector_id {
             "A" => Reflector {
                 alphabet: &REFLECTOR_A_ALPHABET,
@@ -33,7 +34,7 @@ impl Reflector {
         }
     }
 
-    fn map(&self, input_val: u8) -> u8 {
+    pub fn map(&self, input_val: u8) -> u8 {
         self.alphabet[input_val as usize]
     }
 }
