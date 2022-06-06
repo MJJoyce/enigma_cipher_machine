@@ -3,18 +3,18 @@ use std::collections::HashMap;
 use regex::Regex;
 
 #[derive(Debug)]
-struct PlugBoard {
+pub struct PlugBoard {
     mapping: HashMap<u8, u8>,
 }
 
 impl PlugBoard {
-    fn new() -> PlugBoard {
+    pub fn new() -> PlugBoard {
         PlugBoard {
             mapping: HashMap::new()
         }
     }
 
-    fn new_with_mapping<T>(mappings: T) -> Result<PlugBoard, String>
+    pub fn new_with_mapping<T>(mappings: T) -> Result<PlugBoard, String>
     where
         T: IntoIterator<Item = (char, char)>
     {
@@ -29,7 +29,7 @@ impl PlugBoard {
         Ok(pb)
     }
 
-    fn add_mapping(&mut self, in1: char, in2: char) -> Result<(), String> {
+    pub fn add_mapping(&mut self, in1: char, in2: char) -> Result<(), String> {
         let valid_char = Regex::new("^[a-zA-Z]$").unwrap();
         let mut conv_buf = [0; 4];
 
@@ -66,6 +66,14 @@ impl PlugBoard {
         self.mapping.insert(in1_val, in2_val);
         self.mapping.insert(in2_val, in1_val);
         Ok(())
+    }
+
+    pub fn map(self, in_val: u8) -> u8 {
+        if let Some(&v) = self.mapping.get(&in_val) {
+            v
+        } else {
+            in_val
+        }
     }
 }
 
