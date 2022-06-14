@@ -39,14 +39,30 @@ impl EnigmaMachineBuilder {
 
     pub fn rotors<T>(mut self, rotor_ids: T) -> EnigmaMachineBuilder
     where
-        T: IntoIterator<Item = &'static str>,
+        T: IntoIterator<Item = (&'static str, u8, u8)>,
     {
-        let mut rotors = Vec::new();
-        for rotor_id in rotor_ids {
-            rotors.push(Rotor::new(rotor_id));
+        let mut rtrs = Vec::new();
+        for (rotor_id, pos, ring_loc) in rotor_ids {
+            rtrs.push(Rotor::new_with_state(rotor_id, pos, ring_loc));
         }
 
-        self.rotors = Some(rotors);
+        if let Some(ref mut rotors) = self.rotors {
+            rotors.append(&mut rtrs);
+        } else {
+            self.rotors = Some(rtrs);
+        }
+        self
+    }
+
+    pub fn rotor(mut self, rotor_id: &str, pos: u8, ring_loc: u8) -> EnigmaMachineBuilder {
+        let rotor = Rotor::new_with_state(rotor_id, pos, ring_loc);
+
+        if let Some(ref mut rotors) = self.rotors {
+            rotors.push(rotor);
+        } else {
+            self.rotors = Some(vec![rotor]);
+        }
+
         self
     }
 
@@ -81,5 +97,59 @@ impl EnigmaMachine {
 
     fn builder() -> EnigmaMachineBuilder {
         EnigmaMachineBuilder::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_basic_builder() {
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .reflector("A")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .build();
+    }
+
+    #[test]
+    fn test_builder_missing_item() {
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .build();
+        assert!(em.is_none());
+
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .reflector("A")
+            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .build();
+        assert!(em.is_none());
+
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .reflector("A")
+            .plugboard(vec![('A', 'B')])
+            .build();
+        assert!(em.is_none());
+    }
+
+    #[test]
+    fn test_builder_rotor_handling() {
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .rotor("IV", 0, 0);
+        assert_eq!(em.rotors.unwrap().len(), 4);
+
+        let builder = EnigmaMachine::builder();
+        let em = builder
+            .rotor("IV", 0, 0)
+            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)]);
+        assert_eq!(em.rotors.unwrap().len(), 4);
     }
 }
