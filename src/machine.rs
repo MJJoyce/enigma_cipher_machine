@@ -131,10 +131,7 @@ mod tests {
         assert!(em.is_none());
 
         let builder = EnigmaMachine::builder();
-        let em = builder
-            .reflector("A")
-            .plugboard(vec![('A', 'B')])
-            .build();
+        let em = builder.reflector("A").plugboard(vec![('A', 'B')]).build();
         assert!(em.is_none());
     }
 
