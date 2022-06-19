@@ -70,7 +70,7 @@ impl PlugBoard {
         Ok(())
     }
 
-    pub fn map(self, in_val: u8) -> u8 {
+    pub fn map(&self, in_val: u8) -> u8 {
         if let Some(&v) = self.mapping.get(&in_val) {
             v
         } else {
