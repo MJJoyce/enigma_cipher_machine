@@ -1,6 +1,13 @@
+use lazy_static::lazy_static;
+use regex::Regex;
+
 use crate::plugboard::PlugBoard;
 use crate::reflector::Reflector;
 use crate::rotor::Rotor;
+
+lazy_static! {
+    static ref VALID_CHAR: Regex = Regex::new("^[a-zA-Z]$").unwrap();
+}
 
 #[derive(Debug)]
 struct EnigmaMachineBuilder {
@@ -98,10 +105,46 @@ impl EnigmaMachine {
     fn builder() -> EnigmaMachineBuilder {
         EnigmaMachineBuilder::new()
     }
+
+    fn translate(&mut self, input: char) -> Option<char> {
+        let mut conv_buf = [0; 4];
+
+        if !(VALID_CHAR.is_match(input.encode_utf8(&mut conv_buf))) {
+            let msg = format!(
+                "EnigmaMachine can only map alphabetic characters. Received {}",
+                input
+            );
+            eprintln!("{}", msg);
+            return None;
+        }
+
+        let mut trans_input = input.to_ascii_uppercase() as u8 - 65;
+        trans_input = self.plugboard.map(trans_input);
+        let mut rotation_triggered = false;
+
+        for (i, rotor) in self.rotors.iter_mut().enumerate() {
+            if i == 0 || rotor.will_step_next_rotor() || rotation_triggered {
+                rotation_triggered = rotor.will_step_next_rotor();
+                rotor.rotate();
+            }
+
+            trans_input = rotor.map_in(trans_input);
+        }
+
+        trans_input = self.reflector.map(trans_input);
+
+        for rotor in (&self.rotors).iter().rev() {
+            trans_input = rotor.map_out(trans_input);
+        }
+
+        trans_input = self.plugboard.map(trans_input);
+
+        return Some((trans_input + 65).into());
+    }
 }
 
 #[cfg(test)]
-mod tests {
+mod builder_tests {
     use super::*;
 
     #[test]
@@ -148,5 +191,127 @@ mod tests {
             .rotor("IV", 0, 0)
             .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)]);
         assert_eq!(em.rotors.unwrap().len(), 4);
+    }
+}
+
+#[cfg(test)]
+mod machine_tests {
+    use super::*;
+
+    #[test]
+    fn simple_translation_test() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        // Expected translation values pulled from
+        // http://people.physik.hu-berlin.de/~palloks/js/enigma/enigma-u_v25_en.html
+        // WUPGNWOJUSQGTULMNUNYRHZSHP
+        assert_eq!(em.translate('A').unwrap(), 'W');
+        assert_eq!(em.translate('A').unwrap(), 'U');
+        assert_eq!(em.translate('A').unwrap(), 'P');
+        assert_eq!(em.translate('A').unwrap(), 'G');
+        assert_eq!(em.translate('A').unwrap(), 'N');
+        assert_eq!(em.translate('A').unwrap(), 'W');
+        assert_eq!(em.translate('A').unwrap(), 'O');
+        assert_eq!(em.translate('A').unwrap(), 'J');
+        assert_eq!(em.translate('A').unwrap(), 'U');
+        assert_eq!(em.translate('A').unwrap(), 'S');
+        assert_eq!(em.translate('A').unwrap(), 'Q');
+        assert_eq!(em.translate('A').unwrap(), 'G');
+        assert_eq!(em.translate('A').unwrap(), 'T');
+        assert_eq!(em.translate('A').unwrap(), 'U');
+        assert_eq!(em.translate('A').unwrap(), 'L');
+        assert_eq!(em.translate('A').unwrap(), 'M');
+        assert_eq!(em.translate('A').unwrap(), 'N');
+        assert_eq!(em.translate('A').unwrap(), 'U');
+        assert_eq!(em.translate('A').unwrap(), 'N');
+        assert_eq!(em.translate('A').unwrap(), 'Y');
+        assert_eq!(em.translate('A').unwrap(), 'R');
+        assert_eq!(em.translate('A').unwrap(), 'H');
+        assert_eq!(em.translate('A').unwrap(), 'Z');
+        assert_eq!(em.translate('A').unwrap(), 'S');
+        assert_eq!(em.translate('A').unwrap(), 'H');
+        assert_eq!(em.translate('A').unwrap(), 'P');
+    }
+
+    #[test]
+    fn test_triggering_second_rotor_rotation() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        let input = "Loremipsumdolorsi";
+        let expected_output = "ilfdfbruadonvisru";
+
+        for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
+            let trans = em.translate(in_val).unwrap();
+            let out_trans = out_val.to_ascii_uppercase();
+            assert_eq!(trans, out_trans);
+        }
+    }
+
+    #[test]
+    fn test_triggering_third_rotor_rotation() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        let input =
+            "Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutl\
+             aboreetdoloremagna";
+        let expected_output =
+            "ilfdfbruadonvisruknzqmndiycouhrlbiarmpylbznyngrmrmvbbjlnszfhsyaakfod\
+             pchqphswoqrwjfkxnabzjnpzozau";
+
+        for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
+            let trans = em.translate(in_val).unwrap();
+            let out_trans = out_val.to_ascii_uppercase();
+            assert_eq!(trans, out_trans);
+        }
+    }
+
+    #[test]
+    fn test_large_translation() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        let input =
+            "Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutl\
+             aboreetdoloremagnaaliquaUtenimadminimveniamquisnostrudexercitationullamcolabor\
+             isnisiutaliquipexeacommodoconsequatDuisauteiruredolorinreprehenderitinvoluptat\
+             evelitessecillumdoloreeufugiatnullapariaturExcepteursintoccaecatcupidatatnonpr\
+             oidentsuntinculpaquiofficiadeseruntmollitanimidestlaborum";
+
+        let expected_output =
+            "ilfdfbruadonvisruknzqmndiycouhrlbiarmpylbznyngrmrmvbbjlnszfhsyaakfod\
+             pchqphswoqrwjfkxnabzjnpzozauwmnxoupxxevjuisapsdpjqawzxcthivuojjcsova\
+             swfclgslfdxgwzwsnsbyrjbszsgqmmqrlkbulwtznghsrkvxfqlevddwhbwgaxvfaisb\
+             bqcnnfyjxabwiykwceuocskmkheqfbjdonnhvnjtbdkkyrycyittbgpduzjkesmivdph\
+             ojqoejioxfmkslnakczgbummcrsfvsimqkjgmcnemlsouhzbjxdraoxvmlmnzuqbmqhn\
+             cfcokgesbvpjzsshnzaleejkapxrv";
+
+        for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
+            let trans = em.translate(in_val).unwrap();
+            let out_trans = out_val.to_ascii_uppercase();
+            assert_eq!(trans, out_trans);
+        }
     }
 }
