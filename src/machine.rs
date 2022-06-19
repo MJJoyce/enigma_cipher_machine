@@ -9,8 +9,8 @@ lazy_static! {
     static ref VALID_CHAR: Regex = Regex::new("^[a-zA-Z]$").unwrap();
 }
 
-#[derive(Debug)]
-struct EnigmaMachineBuilder {
+#[derive(Debug, Default)]
+pub struct EnigmaMachineBuilder {
     reflector: Option<Reflector>,
     rotors: Option<Vec<Rotor>>,
     plugboard: Option<PlugBoard>,
@@ -86,15 +86,15 @@ impl EnigmaMachineBuilder {
     }
 }
 
-#[derive(Debug)]
-struct EnigmaMachine {
+#[derive(Debug, Default)]
+pub struct EnigmaMachine {
     reflector: Reflector,
     rotors: Vec<Rotor>,
     plugboard: PlugBoard,
 }
 
 impl EnigmaMachine {
-    fn new() -> EnigmaMachine {
+    pub fn new() -> EnigmaMachine {
         EnigmaMachine {
             reflector: Reflector::new("A"),
             rotors: vec![Rotor::new("I"), Rotor::new("II"), Rotor::new("III")],
@@ -102,11 +102,11 @@ impl EnigmaMachine {
         }
     }
 
-    fn builder() -> EnigmaMachineBuilder {
+    pub fn builder() -> EnigmaMachineBuilder {
         EnigmaMachineBuilder::new()
     }
 
-    fn translate(&mut self, input: char) -> Option<char> {
+    pub fn translate(&mut self, input: char) -> Option<char> {
         let mut conv_buf = [0; 4];
 
         if !(VALID_CHAR.is_match(input.encode_utf8(&mut conv_buf))) {
@@ -139,7 +139,7 @@ impl EnigmaMachine {
 
         trans_input = self.plugboard.map(trans_input);
 
-        return Some((trans_input + 65).into());
+        Some((trans_input + 65).into())
     }
 }
 

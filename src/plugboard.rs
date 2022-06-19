@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use regex::Regex;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PlugBoard {
     mapping: HashMap<u8, u8>,
 }

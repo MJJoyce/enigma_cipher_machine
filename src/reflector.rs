@@ -21,21 +21,21 @@ pub struct Reflector {
 impl Reflector {
     pub fn new(reflector_id: &str) -> Reflector {
         match reflector_id {
-            "A" => Reflector {
-                alphabet: &REFLECTOR_A_ALPHABET,
-            },
-            "B" => Reflector {
-                alphabet: &REFLECTOR_B_ALPHABET,
-            },
-            "C" => Reflector {
-                alphabet: &REFLECTOR_C_ALPHABET,
-            },
+            "A" => REFLECTOR_A,
+            "B" => REFLECTOR_B,
+            "C" => REFLECTOR_C,
             _ => panic!("Invalid Reflector id: {}", reflector_id),
         }
     }
 
     pub fn map(&self, input_val: u8) -> u8 {
         self.alphabet[input_val as usize]
+    }
+}
+
+impl Default for Reflector {
+    fn default() -> Self {
+        Self::new("A")
     }
 }
 
