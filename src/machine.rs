@@ -74,6 +74,7 @@ impl EnigmaMachineBuilder {
     }
 
     pub fn build(self) -> Option<EnigmaMachine> {
+        //TODO: We shouldn't require plugboard settings
         if self.reflector.is_none() || self.rotors.is_none() || self.plugboard.is_none() {
             return None;
         }
@@ -137,7 +138,7 @@ impl EnigmaMachine {
         (trans_input + 65).into()
     }
 
-    pub fn translate_text(&mut self, chars: impl Iterator<Item=char>) -> String {
+    pub fn translate_text(&mut self, chars: impl Iterator<Item = char>) -> String {
         chars.map(|c| self.translate(c)).collect()
     }
 }
@@ -321,6 +322,41 @@ mod machine_tests {
              bqcnnfyjxabwiykwceuocskmkheqfbjdonnhvnjtbdkkyrycyittbgpduzjkesmivdph\
              ojqoejioxfmkslnakczgbummcrsfvsimqkjgmcnemlsouhzbjxdraoxvmlmnzuqbmqhn\
              cfcokgesbvpjzsshnzaleejkapxrv";
+
+        for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
+            let trans = em.translate(in_val);
+            let out_trans = out_val.to_ascii_uppercase();
+            assert_eq!(trans, out_trans);
+        }
+    }
+
+    #[test]
+    fn test_large_translation_with_real_rotor_settings() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('B', 'C')])
+            .rotors(vec![
+                ("I", 'W' as u8 - 65, 12),
+                ("II", 'J' as u8 - 65, 17),
+                ("III", 'E' as u8 - 65, 6),
+            ])
+            .build()
+            .unwrap();
+
+        let input =
+            "Loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididuntutl\
+             aboreetdoloremagnaaliquaUtenimadminimveniamquisnostrudexercitationullamcolabor\
+             isnisiutaliquipexeacommodoconsequatDuisauteiruredolorinreprehenderitinvoluptat\
+             evelitessecillumdoloreeufugiatnullapariaturExcepteursintoccaecatcupidatatnonpr\
+             oidentsuntinculpaquiofficiadeseruntmollitanimidestlaborum";
+
+        let expected_output =
+            "ixdmcswbfwxmsaakdywqjnjqulvsjsjhoitnbyqigsbhcbwmzzwufxihdvqjirsvwkmyrxwqzrkefq\
+            qdhnisitmzcsuyctlndhfnebaclranvcnqyyfqcrqjamnzpkvoiifblfcywskikkkdanhqusmtylqif\
+            wgmpceuyugvyfwqpmoeqjzgrnxzoylwhxvksrxrtumyotjohskfohyqiqhyxlvgniejxbplhgfowujb\
+            bfgfjtwyzwgnouzexwswzkwrvfqllnukkryuwxuwiwdfyfgyyqtstiqwwkxrvnrqlfabmqkkkimzypq\
+            jizzyldpyodriritjupvrbwptffqzjirwicqfqcchhrqvmzxkuldef";
 
         for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
             let trans = em.translate(in_val);
