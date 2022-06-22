@@ -106,16 +106,11 @@ impl EnigmaMachine {
         EnigmaMachineBuilder::new()
     }
 
-    pub fn translate(&mut self, input: char) -> Option<char> {
+    pub fn translate(&mut self, input: char) -> char {
         let mut conv_buf = [0; 4];
 
         if !(VALID_CHAR.is_match(input.encode_utf8(&mut conv_buf))) {
-            let msg = format!(
-                "EnigmaMachine can only map alphabetic characters. Received {}",
-                input
-            );
-            eprintln!("{}", msg);
-            return None;
+            return input;
         }
 
         let mut trans_input = input.to_ascii_uppercase() as u8 - 65;
@@ -139,7 +134,7 @@ impl EnigmaMachine {
 
         trans_input = self.plugboard.map(trans_input);
 
-        Some((trans_input + 65).into())
+        (trans_input + 65).into()
     }
 }
 
@@ -211,32 +206,47 @@ mod machine_tests {
         // Expected translation values pulled from
         // http://people.physik.hu-berlin.de/~palloks/js/enigma/enigma-u_v25_en.html
         // WUPGNWOJUSQGTULMNUNYRHZSHP
-        assert_eq!(em.translate('A').unwrap(), 'W');
-        assert_eq!(em.translate('A').unwrap(), 'U');
-        assert_eq!(em.translate('A').unwrap(), 'P');
-        assert_eq!(em.translate('A').unwrap(), 'G');
-        assert_eq!(em.translate('A').unwrap(), 'N');
-        assert_eq!(em.translate('A').unwrap(), 'W');
-        assert_eq!(em.translate('A').unwrap(), 'O');
-        assert_eq!(em.translate('A').unwrap(), 'J');
-        assert_eq!(em.translate('A').unwrap(), 'U');
-        assert_eq!(em.translate('A').unwrap(), 'S');
-        assert_eq!(em.translate('A').unwrap(), 'Q');
-        assert_eq!(em.translate('A').unwrap(), 'G');
-        assert_eq!(em.translate('A').unwrap(), 'T');
-        assert_eq!(em.translate('A').unwrap(), 'U');
-        assert_eq!(em.translate('A').unwrap(), 'L');
-        assert_eq!(em.translate('A').unwrap(), 'M');
-        assert_eq!(em.translate('A').unwrap(), 'N');
-        assert_eq!(em.translate('A').unwrap(), 'U');
-        assert_eq!(em.translate('A').unwrap(), 'N');
-        assert_eq!(em.translate('A').unwrap(), 'Y');
-        assert_eq!(em.translate('A').unwrap(), 'R');
-        assert_eq!(em.translate('A').unwrap(), 'H');
-        assert_eq!(em.translate('A').unwrap(), 'Z');
-        assert_eq!(em.translate('A').unwrap(), 'S');
-        assert_eq!(em.translate('A').unwrap(), 'H');
-        assert_eq!(em.translate('A').unwrap(), 'P');
+        assert_eq!(em.translate('A'), 'W');
+        assert_eq!(em.translate('A'), 'U');
+        assert_eq!(em.translate('A'), 'P');
+        assert_eq!(em.translate('A'), 'G');
+        assert_eq!(em.translate('A'), 'N');
+        assert_eq!(em.translate('A'), 'W');
+        assert_eq!(em.translate('A'), 'O');
+        assert_eq!(em.translate('A'), 'J');
+        assert_eq!(em.translate('A'), 'U');
+        assert_eq!(em.translate('A'), 'S');
+        assert_eq!(em.translate('A'), 'Q');
+        assert_eq!(em.translate('A'), 'G');
+        assert_eq!(em.translate('A'), 'T');
+        assert_eq!(em.translate('A'), 'U');
+        assert_eq!(em.translate('A'), 'L');
+        assert_eq!(em.translate('A'), 'M');
+        assert_eq!(em.translate('A'), 'N');
+        assert_eq!(em.translate('A'), 'U');
+        assert_eq!(em.translate('A'), 'N');
+        assert_eq!(em.translate('A'), 'Y');
+        assert_eq!(em.translate('A'), 'R');
+        assert_eq!(em.translate('A'), 'H');
+        assert_eq!(em.translate('A'), 'Z');
+        assert_eq!(em.translate('A'), 'S');
+        assert_eq!(em.translate('A'), 'H');
+        assert_eq!(em.translate('A'), 'P');
+    }
+
+    #[test]
+    fn test_that_invalid_chars_are_returned_unmodified() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        assert_eq!(em.translate('A'), 'W');
+        assert_eq!(em.translate('.'), '.');
+        assert_eq!(em.translate('✅'), '✅');
     }
 
     #[test]
@@ -253,7 +263,7 @@ mod machine_tests {
         let expected_output = "ilfdfbruadonvisru";
 
         for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
-            let trans = em.translate(in_val).unwrap();
+            let trans = em.translate(in_val);
             let out_trans = out_val.to_ascii_uppercase();
             assert_eq!(trans, out_trans);
         }
@@ -277,7 +287,7 @@ mod machine_tests {
              pchqphswoqrwjfkxnabzjnpzozau";
 
         for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
-            let trans = em.translate(in_val).unwrap();
+            let trans = em.translate(in_val);
             let out_trans = out_val.to_ascii_uppercase();
             assert_eq!(trans, out_trans);
         }
@@ -309,7 +319,7 @@ mod machine_tests {
              cfcokgesbvpjzsshnzaleejkapxrv";
 
         for (in_val, out_val) in input.chars().zip(expected_output.chars()) {
-            let trans = em.translate(in_val).unwrap();
+            let trans = em.translate(in_val);
             let out_trans = out_val.to_ascii_uppercase();
             assert_eq!(trans, out_trans);
         }
