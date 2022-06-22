@@ -191,17 +191,18 @@ impl Rotor {
     }
 
     pub fn map_in(&self, input_val: u8) -> u8 {
+        // TODO: OMFG MY EYES!!
         let trans = self.tyre.alphabet_in
-            [(input_val + self.pos + self.ring_loc).rem_euclid(26) as usize]
+            [(input_val as i16 + self.pos as i16 - self.ring_loc as i16).rem_euclid(26) as usize]
             as i16;
-        (trans - self.pos as i16).rem_euclid(26) as u8
+        (trans - self.pos as i16 + self.ring_loc as i16).rem_euclid(26) as u8
     }
 
     pub fn map_out(&self, input_val: u8) -> u8 {
         let trans = self.tyre.alphabet_out
-            [(input_val + self.pos + self.ring_loc).rem_euclid(26) as usize]
+            [(input_val as i16 + self.pos as i16 - self.ring_loc as i16).rem_euclid(26) as usize]
             as i16;
-        (trans - self.pos as i16).rem_euclid(26) as u8
+        (trans - self.pos as i16 + self.ring_loc as i16).rem_euclid(26) as u8
     }
 }
 
@@ -316,17 +317,19 @@ mod tests {
         r.rotate();
         assert_eq!(r.map_in(0), b'F' - b'A' - r.pos);
         r.rotate();
+    }
 
-        // Check that our ring adjustment is shifting the alphabet as expected
-        // Rotor1 with ring_loc 1 shifts our answers 'up' 1
-        // Rotor1: K, M, F
-        let mut r = Rotor::new_with_state("I", 0, 1);
-        assert_eq!(r.map_in(0), b'K' - b'A' - r.pos);
-        r.rotate();
-        assert_eq!(r.map_in(0), b'M' - b'A' - r.pos);
-        r.rotate();
-        assert_eq!(r.map_in(0), b'F' - b'A' - r.pos);
-        r.rotate();
+    #[test]
+    fn test_ring_loc_mappings_changes() {
+        let mut rotor = Rotor::new_with_state("I", 0, 1);
+        assert_eq!(rotor.map_in('A' as u8 - 65), 'K' as u8 - 65);
+        assert_eq!(rotor.map_in('M' as u8 - 65), 'U' as u8 - 65);
+        assert_eq!(rotor.map_in('Z' as u8 - 65), 'D' as u8 - 65);
+
+        let mut rotor = Rotor::new_with_state("I", 0, 9);
+        assert_eq!(rotor.map_in('A' as u8 - 65), 'D' as u8 - 65);
+        assert_eq!(rotor.map_in('M' as u8 - 65), 'O' as u8 - 65);
+        assert_eq!(rotor.map_in('Z' as u8 - 65), 'G' as u8 - 65);
     }
 
     #[test]
@@ -349,35 +352,6 @@ mod tests {
             ((b'J' - b'A') as i16 - r.pos as i16).rem_euclid(26)
         );
         // We rollover here     (           )
-        r.rotate();
-        assert_eq!(
-            r.map_in(0) as i16,
-            ((b'E' - b'A') as i16 - r.pos as i16).rem_euclid(26)
-        );
-        r.rotate();
-        assert_eq!(
-            r.map_in(0) as i16,
-            ((b'K' - b'A') as i16 - r.pos as i16).rem_euclid(26)
-        );
-
-        // The above should be the same if we adjust the ring position as well
-        let mut r = Rotor::new_with_state("I", 0, 22);
-        r.rotate();
-        assert_eq!(
-            r.map_in(0) as i16,
-            ((b'R' - b'A') as i16 - r.pos as i16).rem_euclid(26)
-        );
-        r.rotate();
-        assert_eq!(
-            r.map_in(0) as i16,
-            ((b'C' - b'A') as i16 - r.pos as i16).rem_euclid(26)
-        );
-        r.rotate();
-        assert_eq!(
-            r.map_in(0) as i16,
-            ((b'J' - b'A') as i16 - r.pos as i16).rem_euclid(26)
-        );
-        // We rollover here
         r.rotate();
         assert_eq!(
             r.map_in(0) as i16,
