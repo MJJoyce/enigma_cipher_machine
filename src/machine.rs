@@ -136,6 +136,10 @@ impl EnigmaMachine {
 
         (trans_input + 65).into()
     }
+
+    pub fn translate_text(&mut self, chars: impl Iterator<Item=char>) -> String {
+        chars.map(|c| self.translate(c)).collect()
+    }
 }
 
 #[cfg(test)]
@@ -323,5 +327,21 @@ mod machine_tests {
             let out_trans = out_val.to_ascii_uppercase();
             assert_eq!(trans, out_trans);
         }
+    }
+
+    #[test]
+    fn test_iterator_translation() {
+        let builder = EnigmaMachine::builder();
+        let mut em = builder
+            .reflector("B")
+            .plugboard(vec![('A', 'B')])
+            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .build()
+            .unwrap();
+
+        let input = "Loremipsumdolor";
+        let expected = "ilfdfbruadonvis".to_owned().to_uppercase();
+
+        assert_eq!(em.translate_text(input.chars()), expected);
     }
 }
