@@ -46,11 +46,11 @@ impl EnigmaMachineBuilder {
 
     pub fn rotors<T>(mut self, rotor_ids: T) -> EnigmaMachineBuilder
     where
-        T: IntoIterator<Item = (&'static str, u8, u8)>,
+        T: IntoIterator<Item = (String, u8, u8)>,
     {
         let mut rtrs = Vec::new();
         for (rotor_id, pos, ring_loc) in rotor_ids {
-            rtrs.push(Rotor::new_with_state(rotor_id, pos, ring_loc));
+            rtrs.push(Rotor::new_with_state(&rotor_id, pos, ring_loc));
         }
 
         if let Some(ref mut rotors) = self.rotors {
@@ -74,15 +74,14 @@ impl EnigmaMachineBuilder {
     }
 
     pub fn build(self) -> Option<EnigmaMachine> {
-        //TODO: We shouldn't require plugboard settings
-        if self.reflector.is_none() || self.rotors.is_none() || self.plugboard.is_none() {
+        if self.reflector.is_none() || self.rotors.is_none() {
             return None;
         }
 
         Some(EnigmaMachine {
             reflector: self.reflector.unwrap(),
             rotors: self.rotors.unwrap(),
-            plugboard: self.plugboard.unwrap(),
+            plugboard: self.plugboard.unwrap_or(PlugBoard::new()),
         })
     }
 }
@@ -153,7 +152,11 @@ mod builder_tests {
         let em = builder
             .reflector("A")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+            ])
             .build();
     }
 
@@ -162,14 +165,11 @@ mod builder_tests {
         let builder = EnigmaMachine::builder();
         let em = builder
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
-            .build();
-        assert!(em.is_none());
-
-        let builder = EnigmaMachine::builder();
-        let em = builder
-            .reflector("A")
-            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+            ])
             .build();
         assert!(em.is_none());
 
@@ -182,14 +182,20 @@ mod builder_tests {
     fn test_builder_rotor_handling() {
         let builder = EnigmaMachine::builder();
         let em = builder
-            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+            ])
             .rotor("IV", 0, 0);
         assert_eq!(em.rotors.unwrap().len(), 4);
 
         let builder = EnigmaMachine::builder();
-        let em = builder
-            .rotor("IV", 0, 0)
-            .rotors(vec![("I", 0, 0), ("III", 0, 0), ("II", 0, 0)]);
+        let em = builder.rotor("IV", 0, 0).rotors(vec![
+            ("I".to_string(), 0, 0),
+            ("III".to_string(), 0, 0),
+            ("II".to_string(), 0, 0),
+        ]);
         assert_eq!(em.rotors.unwrap().len(), 4);
     }
 }
@@ -204,7 +210,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
@@ -245,7 +255,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
@@ -260,7 +274,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
@@ -280,7 +298,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
@@ -304,7 +326,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
@@ -337,9 +363,9 @@ mod machine_tests {
             .reflector("B")
             .plugboard(vec![('B', 'C')])
             .rotors(vec![
-                ("I", 'W' as u8 - 65, 12),
-                ("II", 'J' as u8 - 65, 17),
-                ("III", 'E' as u8 - 65, 6),
+                ("I".to_string(), 'W' as u8 - 65, 12),
+                ("II".to_string(), 'J' as u8 - 65, 17),
+                ("III".to_string(), 'E' as u8 - 65, 6),
             ])
             .build()
             .unwrap();
@@ -371,7 +397,11 @@ mod machine_tests {
         let mut em = builder
             .reflector("B")
             .plugboard(vec![('A', 'B')])
-            .rotors(vec![("I", 0, 0), ("II", 0, 0), ("III", 0, 0)])
+            .rotors(vec![
+                ("I".to_string(), 0, 0),
+                ("II".to_string(), 0, 0),
+                ("III".to_string(), 0, 0),
+            ])
             .build()
             .unwrap();
 
