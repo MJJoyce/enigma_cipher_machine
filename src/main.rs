@@ -1,8 +1,8 @@
 use std::io::{self, BufRead, BufReader};
 
-use enigma::machine::{EnigmaMachine, EnigmaMachineBuilder};
+use enigma::machine::EnigmaMachine;
 
-use clap::{ArgGroup, Parser};
+use clap::Parser;
 
 #[derive(Parser)]
 #[clap(author, version, about)]
@@ -10,7 +10,7 @@ use clap::{ArgGroup, Parser};
 ///
 /// enigma provides a CLI for encoding / decoding text via an Enigma Machine.
 /// See the `enigma` library for details on exactly what is supported.
-struct CLI {
+struct Cli {
     /// Enigma machine configuration string
     ///
     /// This must be of the form:
@@ -174,8 +174,8 @@ impl RotorConfig {
 
             rotor_ids.push((
                 cfg_elems[0].to_string(),
-                pos as u8 - 'A' as u8,
-                ring_loc as u8 - 'A' as u8,
+                pos as u8 - b'A',
+                ring_loc as u8 - b'A',
             ))
         }
 
@@ -211,12 +211,12 @@ impl PlugBoardConfig {
             plugboard_maps.push((chs[0], chs[2]));
         }
 
-        return Some(PlugBoardConfig { plugboard_maps });
+        Some(PlugBoardConfig { plugboard_maps })
     }
 }
 
 fn main() {
-    let cli = CLI::parse();
+    let cli = Cli::parse();
     let cfg = Config::parse(cli.config).expect("Invalid enigma config provided");
 
     let input: Box<dyn BufRead> = if cli.input.is_none() {

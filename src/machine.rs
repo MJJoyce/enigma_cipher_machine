@@ -81,7 +81,7 @@ impl EnigmaMachineBuilder {
         Some(EnigmaMachine {
             reflector: self.reflector.unwrap(),
             rotors: self.rotors.unwrap(),
-            plugboard: self.plugboard.unwrap_or(PlugBoard::new()),
+            plugboard: self.plugboard.unwrap_or_default()
         })
     }
 }
