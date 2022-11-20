@@ -10,7 +10,7 @@
 //! Enigma machine configuration string as input, runs the text through
 //! the configured machine, and outputs the result.
 //!
-//! ```
+//! ```ignore
 //! enigma -i "hello, how are you doing" -c "A;III-A-A,II-A-A,I-A-A;a-b"
 //! LZFAD, AMT GPJ FND IFMJY
 //! ```
@@ -18,14 +18,14 @@
 //! Encryption and decyption is handled in the same was due to the nature of
 //! Enigma.
 //!
-//! ```
+//! ```ignore
 //! cargo run -- -i "LZFAD, AMT GPJ FND IFMJY" -c "A;III-A-A,II-A-A,I-A-A;a-b"
 //! HELLO, HOW ARE YOU DOING
 //! ```
 //! ## Configuration
 //! The **enigma** configuration string specifies all details for the machine.
 //!
-//! ```
+//! ```ignore
 //! "A;III-A-A,II-A-A,I-A-A;a-b"
 //! ```
 //!
@@ -35,7 +35,7 @@
 //!
 //! The configuration string is broken up into three components.
 //!
-//! ```
+//! ```ignore
 //! <Reflector Id>;<Rotor Configurations>;<Plugboard mappings>
 //! ```
 //!
@@ -45,7 +45,7 @@
 //! A rotor configuration specifies a rotor id and the position and ring location
 //! settings. See the [rotor](rotor) module page for valid rotor ids.
 //!
-//! ```
+//! ```ignore
 //! III-A-A
 //! <Rotor Id>-<Position>-<Ring Location>
 //! ```
@@ -54,7 +54,7 @@
 //! For example, the following connects `A` and `B`  and `C` to `D` on the
 //! plugboard. Note that the order doesn't matter.
 //!
-//! ```
+//! ```ignore
 //! <Reflector Id>;<Rotor Configuration>;a-b,d-c
 //! ```
 //!
@@ -65,6 +65,8 @@
 //! to build and run an Enigma programmatically.
 //!
 //! ```
+//! use enigma::machine::EnigmaMachine;
+//!
 //! let builder = EnigmaMachine::builder();
 //! let mut machine = builder
 //!     .reflector("A")
@@ -74,8 +76,8 @@
 //!         ("III".to_string(), 0, 0),
 //!         ("II".to_string(), 0, 0),
 //!     ])
-//!     .build();
-//! let trans = em.translate_text("Hello, how are you".chars());
+//!     .build().unwrap();
+//! let trans = machine.translate_text("Hello, how are you".chars());
 //! ```
 //!
 //! # Future Improvements
