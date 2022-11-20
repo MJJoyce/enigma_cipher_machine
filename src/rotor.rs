@@ -1,3 +1,5 @@
+use std::fmt;
+
 // [E, K, M, F, L, G, D, Q, V, Z, N, T, O, W, Y, H, X, U, S, P, A, I, B, R, C, J]
 const ROTOR_1_ALPHABET_IN: [u8; 26] = [
     4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 23, 20, 18, 15, 0, 8, 1, 17, 2, 9,
@@ -139,11 +141,12 @@ const ROTOR_VIII: RotorTyre = RotorTyre {
     alphabet_out: &ROTOR_8_ALPHABET_OUT,
 };
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Rotor {
     tyre: &'static RotorTyre,
     pos: u8,
     ring_loc: u8,
+    id: String
 }
 
 impl Rotor {
@@ -168,6 +171,7 @@ impl Rotor {
             tyre,
             pos: (pos).rem_euclid(26),
             ring_loc: (ring_loc).rem_euclid(26),
+            id: rotor_id.to_string()
         }
     }
 
@@ -176,6 +180,7 @@ impl Rotor {
             tyre,
             pos,
             ring_loc,
+            id: "custom".to_string()
         }
     }
 
@@ -203,6 +208,31 @@ impl Rotor {
             [(input_val as i16 + self.pos as i16 - self.ring_loc as i16).rem_euclid(26) as usize]
             as i16;
         (trans - self.pos as i16 + self.ring_loc as i16).rem_euclid(26) as u8
+    }
+
+    pub fn set_rotor_settings(&mut self, new_pos: u8, new_ring_loc: u8) {
+        self.pos = new_pos;
+        self.ring_loc = new_ring_loc;
+    }
+
+    pub fn set_rotor_pos(&mut self, new_pos: u8) {
+        self.pos = new_pos;
+    }
+
+    pub fn set_rotor_ring_loc(&mut self, new_ring_loc: u8) {
+        self.ring_loc = new_ring_loc;
+    }
+}
+
+impl fmt::Display for Rotor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.id, self.pos, self.ring_loc)
+    }
+}
+
+impl fmt::Debug for Rotor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.id, self.pos, self.ring_loc)
     }
 }
 
@@ -351,7 +381,7 @@ mod tests {
             r.map_in(0) as i16,
             ((b'J' - b'A') as i16 - r.pos as i16).rem_euclid(26)
         );
-        // We rollover here     (           )
+        // We rollover here
         r.rotate();
         assert_eq!(
             r.map_in(0) as i16,
