@@ -9,7 +9,7 @@ lazy_static! {
     static ref VALID_CHAR: Regex = Regex::new("^[a-zA-Z]$").unwrap();
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct EnigmaMachineBuilder {
     reflector: Option<Reflector>,
     rotors: Option<Vec<Rotor>>,
@@ -81,7 +81,7 @@ impl EnigmaMachineBuilder {
         Some(EnigmaMachine {
             reflector: self.reflector.unwrap(),
             rotors: self.rotors.unwrap(),
-            plugboard: self.plugboard.unwrap_or_default()
+            plugboard: self.plugboard.unwrap_or_default(),
         })
     }
 }

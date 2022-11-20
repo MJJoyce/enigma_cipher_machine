@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use regex::Regex;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PlugBoard {
     mapping: HashMap<u8, u8>,
 }
@@ -36,33 +36,27 @@ impl PlugBoard {
         if !(valid_char.is_match(in1.encode_utf8(&mut conv_buf))
             && valid_char.is_match(in2.encode_utf8(&mut conv_buf)))
         {
-            let msg = format!(
+            return Err(format!(
                 "Error in PlugBoard configuration. Can only map alphabetic characters. Received {} {}",
                 in1, in2
-            );
-            eprintln!("{}", msg);
-            return Err(msg);
+            ));
         }
 
         let in1_val = in1.to_ascii_uppercase() as u8 - 65;
         let in2_val = in2.to_ascii_uppercase() as u8 - 65;
 
         if self.mapping.contains_key(&in1_val) {
-            let msg = format!(
+            return Err(format!(
                 "Error in PlugBoard configuration. Duplicate mapping for {} encountered",
                 in1_val
-            );
-            eprintln!("{}", msg);
-            return Err(msg);
+            ));
         }
 
         if self.mapping.contains_key(&in2_val) {
-            let msg = format!(
+            return Err(format!(
                 "Error in plugboard configuration. Duplicate mapping for {} encountered",
                 in2_val
-            );
-            eprintln!("{}", msg);
-            return Err(msg);
+            ));
         }
 
         self.mapping.insert(in1_val, in2_val);
