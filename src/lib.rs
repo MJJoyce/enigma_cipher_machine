@@ -14,7 +14,7 @@
 //! enigma -i "hello, how are you doing" -c "A;III-A-A,II-A-A,I-A-A;a-b"
 //! LZFAD, AMT GPJ FND IFMJY
 //! ```
-//! 
+//!
 //! Encryption and decyption is handled in the same was due to the nature of
 //! Enigma.
 //!

@@ -151,7 +151,7 @@ pub struct Rotor {
     tyre: &'static RotorTyre,
     pos: u8,
     ring_loc: u8,
-    id: String
+    id: String,
 }
 
 impl Rotor {
@@ -176,7 +176,7 @@ impl Rotor {
             tyre,
             pos: (pos).rem_euclid(26),
             ring_loc: (ring_loc).rem_euclid(26),
-            id: rotor_id.to_string()
+            id: rotor_id.to_string(),
         }
     }
 
@@ -185,7 +185,7 @@ impl Rotor {
             tyre,
             pos,
             ring_loc,
-            id: "custom".to_string()
+            id: "custom".to_string(),
         }
     }
 

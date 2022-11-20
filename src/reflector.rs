@@ -28,7 +28,6 @@ pub struct Reflector {
 }
 
 impl Reflector {
-
     /// Create a new Reflector from a given reflector Id.
     ///
     /// * `reflector_id` - The reflector Id dictating the mapping of this
