@@ -128,7 +128,7 @@ impl EnigmaMachine {
 
         trans_input = self.reflector.map(trans_input);
 
-        for rotor in (&self.rotors).iter().rev() {
+        for rotor in self.rotors.iter().rev() {
             trans_input = rotor.map_out(trans_input);
         }
 

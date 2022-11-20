@@ -21,9 +21,7 @@ impl PlugBoard {
         let mut pb = Self::new();
 
         for (in1, in2) in mappings {
-            if let Err(msg) = pb.add_mapping(in1, in2) {
-                return Err(msg);
-            }
+            pb.add_mapping(in1, in2)?;
         }
 
         Ok(pb)
