@@ -1,3 +1,8 @@
+//! Enigma Rotor module.
+//!
+//! The [Rotor](Rotor) struct implements the Engima rotors functionality.
+//! Currently supports rotors `I` through `VIII`.
+//!
 use std::fmt;
 
 // [E, K, M, F, L, G, D, Q, V, Z, N, T, O, W, Y, H, X, U, S, P, A, I, B, R, C, J]

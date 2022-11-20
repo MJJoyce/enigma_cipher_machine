@@ -1,3 +1,8 @@
+//! Enigma Reflector module.
+//!
+//! The [Reflector](Reflector) struct implements the Engima reflector
+//! rotors. Currently supports reflectors `A`, `B`, and `C`.
+
 // E, J, M, Z, A, L, Y, X, V, B, W, F, C, R, Q, U, O, N, T, S, P, I, K, H, G, D
 const REFLECTOR_A_ALPHABET: [u8; 26] = [
     4, 9, 12, 25, 0, 11, 24, 23, 21, 1, 22, 5, 2, 17, 16, 20, 14, 13, 19, 18, 15, 8, 10, 7, 6, 3,
@@ -13,12 +18,21 @@ const REFLECTOR_C_ALPHABET: [u8; 26] = [
     5, 21, 15, 9, 8, 0, 14, 24, 4, 3, 17, 25, 23, 22, 6, 2, 19, 10, 20, 16, 18, 1, 13, 12, 7, 11,
 ];
 
+/// Enigma Reflector
+///
+/// Implementation of the Enigma "reflector" rotor. Supports the
+/// `A`, `B`, and `C` reflectors.
 #[derive(Debug, Clone)]
 pub struct Reflector {
     alphabet: &'static [u8; 26],
 }
 
 impl Reflector {
+
+    /// Create a new Reflector from a given reflector Id.
+    ///
+    /// * `reflector_id` - The reflector Id dictating the mapping of this
+    ///     reflector. Valid options are `A`, `B`, and `C`.
     pub fn new(reflector_id: &str) -> Reflector {
         match reflector_id {
             "A" => REFLECTOR_A,
@@ -28,6 +42,9 @@ impl Reflector {
         }
     }
 
+    /// Maps an input value "through" the reflector
+    ///
+    /// * `input_val` - The input "character" to map
     pub fn map(&self, input_val: u8) -> u8 {
         self.alphabet[input_val as usize]
     }
